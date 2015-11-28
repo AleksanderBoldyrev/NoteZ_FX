@@ -16,8 +16,8 @@ public class SocketListener extends Thread {
     private BufferedReader _in;
     private PrintWriter _out;
 
-    private ArrayList<String> _buffin;
-    private ArrayList<String> _buffout;
+    private final ArrayList<String> _buffin;
+    private final ArrayList<String> _buffout;
 
     private boolean termFlag;
 
