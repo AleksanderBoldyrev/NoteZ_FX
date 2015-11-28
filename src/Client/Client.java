@@ -311,6 +311,7 @@ public class Client extends Application{
     public void LoginButtonClicked(Event event) {
 
         Login(userName.getText(), password.getText());
+
     }
 
     public void CreateUserButtonClicked(Event event) {
