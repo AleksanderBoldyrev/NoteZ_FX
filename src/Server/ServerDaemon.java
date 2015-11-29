@@ -37,6 +37,7 @@ public class ServerDaemon extends Thread{
                 Server serv = new Server(s);
                 _serverThreads.add(serv);
                 Thread t = new Thread(serv);
+                t.setDaemon(true);
                 t.start();
             } catch (IOException e) {
                 //e.printStackTrace();

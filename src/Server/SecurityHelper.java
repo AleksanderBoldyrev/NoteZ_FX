@@ -17,17 +17,17 @@ public class SecurityHelper {
         _activeUsers = new ArrayList<Integer>();
     }
 
-    public synchronized boolean Login(String name, String pass) {
+    public synchronized int Login(String name, String pass) {
         int res = _dataBase.CheckUser(name, pass);  //*** NARROW!. ***
         if (res >= 0) {
             if (_activeUsers.contains(res))
-                return false;
+                return -1;
             else {
                 _activeUsers.add(res);
-                return true;
+                return res;
             }
         }
-        return false;
+        return -1;
     }
 
     public synchronized void Logout(int userId) {

@@ -577,34 +577,14 @@ public class BaseWorker {
      * @param _log - username;
      * @param _pass - user's password.
      */
-    public void AddUser(String _log, String _pass) {
-        if (CheckUser(_log, _pass) >= 0) {
-            int m = 0;
-            if (_users.size() > 0) m = _users.get(0).GetId() + 1;
-            User u1 = new User(m, _log, _pass, new ArrayList<Integer>());
-            _users.add(u1);
-        }
-        //File file = new File(fileName);
-        /*try
-        {
-            if(!file.exists())
-                file.createNewFile();
-            PrintWriter out = new PrintWriter(file.getAbsoluteFile());
-            out.print(_id);
-            out.print(sep);
-            out.print(_log);
-            out.print(sep);
-            out.print(_pass);
-            out.print(sep);
-            for (int i = 0; i < _notesId.size(); i++) {
-                out.print(_notesId.get(i));
-                out.print(sep);
-            }
-            //out.print(sep);
-            out.close();
-        } catch(IOException e) {
-            throw new RuntimeException(e);
-        }*/
+    public int AddUser(String _log, String _pass) {
+        //if (CheckUser(_log, _pass) >= 0) {
+        int m = 0;
+        if (_users.size() > 0)
+            m = _users.get(0).GetId() + 1;
+        User u1 = new User(m, _log, _pass, new ArrayList<Integer>());
+        _users.add(u1);
+        return m;
     }
 
     /**
@@ -670,7 +650,7 @@ public class BaseWorker {
     public void DeleteTagByName(String name) {
         if (_tags.size() > 0)
             for (int i = 0; i < _tags.size(); i++)
-                if (Objects.equals(_tags.get(i).GetStrData(), name))
+                if (_tags.get(i).GetStrData().equals(name))
                     _tags.remove(i);
     }
 

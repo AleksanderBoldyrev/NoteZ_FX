@@ -48,6 +48,7 @@ public class Server extends Thread{
             String resp = "";
             while (true) {
                 str = _in.readLine();
+                System.out.println("Server received: "+str);
                 if (str.equals(CommonData.TERMCOMMAND))
                     break;
                 resp = "";
@@ -102,8 +103,10 @@ public class Server extends Thread{
 
                 }
 
-                if (!Objects.equals(resp, ""))
+                if (!resp.equals("")) {
                     _out.println(resp);
+                    System.out.println("Server send: "+resp);
+                }
 
                 try {
                     this.sleep(CommonData.SLEEP_TIME);
@@ -126,14 +129,17 @@ public class Server extends Thread{
     public String Login(ArrayList<String> buff ) {
         ArrayList<String> res = new ArrayList<String>();
 
-        boolean suc = false;
+        int id = -1;
         if (buff.size()>2) {
-            suc = ServerDaemon.sHelper.Login(buff.get(1), buff.get(2));
+            id = ServerDaemon.sHelper.Login(buff.get(1), buff.get(2));
         }
-        if (suc)
+        if (id>=0) {
             res.add(CommonData.SERV_YES + "");
+            _userId=id;
+        }
         else
             res.add(CommonData.SERV_NO + "");
+        res.add(id+"");
         return _parser.Build(res, CommonData.O_RESPOND);
     }
 

@@ -4,6 +4,8 @@ import java.io.*;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Objects;
+import java.util.concurrent.Executor;
+import java.util.concurrent.ExecutorService;
 
 import Main.*;
 import javafx.application.Application;
@@ -20,11 +22,23 @@ import static java.lang.Thread.sleep;
 /**
  * Created by Sasha on 30.09.2015.
  */
-public class Client extends Application{
+public class Client extends Application {
 
-    public final SocketListener _listener = new SocketListener(CommonData.PORT, CommonData.HOST);
-    public final RequestsParser _parser = new RequestsParser();
-    public boolean isAuth;
+
+    public static final RequestsParser _parser = new RequestsParser();
+    public static boolean isAuth;
+    public static Stage _mainStage;
+    public static Scene _mainScene;
+    public static Parent _lNode;
+    public static Parent _mNode;
+    public static int _userId;
+
+    private static Socket _sock;
+    private static BufferedReader _in;
+    private static PrintWriter _out;
+
+
+    private boolean termFlag;
 
     /* FX Elements */
 
@@ -34,14 +48,19 @@ public class Client extends Application{
 
     /* =========== */
 
-    /*public Client(int port, String host) {
-
-        _listener = new SocketListener(port, host);
-        _parser = new RequestsParser();
-        isAuth = false;
-    }*/
-
     public void startProcess() {
+        /*Thread t = new Thread(_listener);
+        t.setDaemon(true);
+        t.start();*/
+
+        try {
+            _sock = new Socket(CommonData.HOST, CommonData.PORT);
+            _in = new BufferedReader(new InputStreamReader(_sock.getInputStream()));
+            _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(_sock.getOutputStream())), true);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        termFlag = false;
 
         Application.launch();
 
@@ -50,39 +69,42 @@ public class Client extends Application{
 
     @Override
     public void start(Stage primaryStage) throws IOException {
-        //this._listener = new SocketListener(CommonData.PORT, CommonData.HOST);
-        //this._parser = new RequestsParser();
+
         isAuth = false;
+        _userId = 0;
+        _mainStage = new Stage();
 
-        Thread t = new Thread(_listener);
-        t.start();
-        Parent root = FXMLLoader.load(getClass().getResource("LoginWindow.fxml"));
-        primaryStage.setTitle(CommonData.LOG_W_CAPTION);
-        primaryStage.setScene(new Scene(root, 600, 400));
-        primaryStage.show();
-    }
-
-    public void stopListener() {
-        _listener.StopListener();
+        _lNode = FXMLLoader.load(getClass().getResource("LoginWindow.fxml"));
+        _mNode = FXMLLoader.load(getClass().getResource("MainWindow.fxml"));
+        _mainStage.setTitle(CommonData.LOG_W_CAPTION);
+        _mainScene = new Scene(_lNode, 600, 400);
+        _mainStage.setScene(_mainScene);
+        _mainStage.show();
     }
 
     public void Login(String _log, String _pass) {
         ArrayList<String> s = new ArrayList<String>();
         s.add(_log);
         s.add(_pass);
+
         String st = _parser.Build(s, CommonData.O_LOGIN);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
-        if (!Objects.equals(str, ""))
+
+        if (!str.equals(""))
         {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
-            if (buff.size() > 1)
+            if (buff.size() > 2)
                 if (buff.get(0) == CommonData.O_RESPOND)
                 {
                     if (buff.get(1) == CommonData.SERV_YES)
                     {
+                        _userId = buff.get(2);
                         isAuth = true;
-
+                        _mainStage.setTitle(CommonData.MAIN_W_CAPTION);
+                        _mainScene = new Scene(_mNode, 600, 400);
+                        _mainStage.setScene(_mainScene);
+                        _mainStage.show();
                     }
                     //else
                     //   _uiLogin.label.showMessage("User name or password is incorrect!");
@@ -92,9 +114,9 @@ public class Client extends Application{
 
     public void Logout() {
         String st = _parser.Build("", CommonData.O_LOGOUT);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
-        if (!Objects.equals(str, ""))
+        if (!str.equals(""))
         {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
             if (buff.size() > 1)
@@ -102,7 +124,7 @@ public class Client extends Application{
                 {
                     if (buff.get(1) == CommonData.SERV_YES)
                     {
-                        isAuth = true;
+                        isAuth = false;
                     }
                 }
         }
@@ -111,16 +133,17 @@ public class Client extends Application{
     public void CreateUser(String _log, String _pass) {
         ArrayList<String> s = new ArrayList<String>();
         s.add(_log);
-        s.add(_pass);
+        boolean add = s.add(_pass);
         String st = _parser.Build(s, CommonData.O_CREATE_U);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
-        if (!Objects.equals(str, "")) {
+        if (!str.equals("")) {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
             if (buff.size() > 1)
                 if (buff.get(0) == CommonData.O_RESPOND) {
                     if (buff.get(1) == CommonData.SERV_YES) {
                         isAuth = true;
+                        Login(_log, _pass);
                     }
                 }
         }
@@ -128,9 +151,9 @@ public class Client extends Application{
 
     public void DeleteUser(int user_id) {
         String st = _parser.Build(user_id, CommonData.O_DELETE_U);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
-        if (!Objects.equals(str, ""))
+        if (!str.equals(""))
         {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
             if (buff.size() > 1)
@@ -146,9 +169,9 @@ public class Client extends Application{
 
     public void CreateNote(String note) {
         String st = _parser.Build(note, CommonData.O_CREATE_N);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
-        if (!Objects.equals(str, ""))
+        if (!str.equals(""))
         {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
             if (buff.size() > 1)
@@ -164,9 +187,9 @@ public class Client extends Application{
 
     public void DeleteNote(int note) {
         String st = _parser.Build(note, CommonData.O_DELETE_N);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
-        if (!Objects.equals(str, ""))
+        if (!str.equals(""))
         {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
             if (buff.size() > 1)
@@ -182,9 +205,9 @@ public class Client extends Application{
 
     public void CreateTag(String tag) {
         String st = _parser.Build(tag, CommonData.O_CREATE_T);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
-        if (!Objects.equals(str, ""))
+        if (!str.equals(""))
         {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
             if (buff.size() > 1)
@@ -200,7 +223,7 @@ public class Client extends Application{
 
     public void DeleteTag(String tag) {
         String st = _parser.Build(tag, CommonData.O_DELETE_T);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
         if (!str.isEmpty())
         {
@@ -218,7 +241,7 @@ public class Client extends Application{
 
     public void SaveNote(int note_id) {
         String st = _parser.Build(note_id, CommonData.O_SAVE_N);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
         if (!str.isEmpty())
         {
@@ -236,7 +259,7 @@ public class Client extends Application{
 
     public void DeleteNoteByVersion(int ver) {
         String st = _parser.Build(ver, CommonData.O_DELETE_N_V);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
         if (!str.isEmpty())
         {
@@ -256,7 +279,7 @@ public class Client extends Application{
         ArrayList<String> s = new ArrayList<String>();
         s.add(title);
         String st = _parser.Build(s, CommonData.O_SEARCH_N);
-        _listener.WriteToBuffer(st);
+        SendToServer(st);
         String str = WaitForServer();
         if (!str.isEmpty())
         {
@@ -295,7 +318,7 @@ public class Client extends Application{
             } catch (InterruptedException e) {
                 e.printStackTrace();
             }
-            str =  _listener.ReadBuffer();
+            str =  ReceiveData();
             if (!str.isEmpty())
             {
                 break;
@@ -311,11 +334,110 @@ public class Client extends Application{
     public void LoginButtonClicked(Event event) {
 
         Login(userName.getText(), password.getText());
-
     }
+
 
     public void CreateUserButtonClicked(Event event) {
 
         CreateUser(userName.getText(), password.getText());
+    }
+
+  /* public void StopListener() {
+        //synchronized (termFlag) {
+        termFlag = true;
+        //}
+    }
+
+    public String ReadBuffer() {
+        String str = "";
+        synchronized (_buffin) {
+            if (_buffin.size() > 0) {
+                str = _buffin.get(_buffin.size() - 1);
+                _buffin.remove(_buffin.size() - 1);
+            }
+        }
+        return str;
+    }
+
+    public void WriteToBuffer(String s) {
+        String str = "";
+
+    }
+
+    public synchronized void startThread() {
+        _running = true;
+        _thread = new Thread(this, "Monitor");
+
+        _thread.setDaemon(true);
+
+        _thread.start();
+    }
+
+    public synchronized void stopThread() {
+        _running = false;
+        try {
+            _thread.join();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+    }
+
+    @Override
+    public void run() {
+            String str = "";
+            while (_running) {
+                try {
+                    System.out.println("-");
+                    str = _in.readLine();
+                    if (str.equals(CommonData.TERMCOMMAND))
+                        break;
+
+                    synchronized (_buffin) {
+                        if (str.length() > 0) {
+                            _buffin.add(str);
+                            System.out.println("Client received: " + str);
+                        }
+                    }
+
+                    synchronized (_buffout) {
+                        if (_buffout.size() > 0) {
+                            _out.println(_buffout.get(_buffout.size() - 1));
+                            System.out.println("Client send: " + _buffout.get(_buffout.size() - 1));
+                            _buffout.remove(_buffout.size() - 1);
+                        }
+                    }
+
+                    if (termFlag)
+                        break;
+
+
+                } catch (IOException e) {
+                    e.printStackTrace();
+                } finally {
+                    System.out.println("closing...");
+                    try {
+                        _sock.close();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }
+        _running = false;
+    }
+*/
+    private  void SendToServer(String str) {
+        System.out.println("Client send to server:" + str);
+        _out.println(str);
+    }
+
+    private String ReceiveData() {
+        String str = "";
+        try {
+            str = _in.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Client received: " + str);
+        return str;
     }
 }
