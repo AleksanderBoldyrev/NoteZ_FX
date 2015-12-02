@@ -4,7 +4,7 @@ package Main;
  * Created by Alex on 04.11.2015.
  */
 public final class CommonData {
-    public static final int PORT = 25000;
+    public static final int PORT = 36000;
     public static final String HOST = "localhost";
     public static final char SEP = '|';
     public static final char SEPID = '.';
@@ -31,4 +31,11 @@ public final class CommonData {
     public static final int O_DELETE_N_V = 10;
     public static final int O_SEARCH_N = 11;
     public static final int O_IS_SERVER_ALIVE = 666;
+    public static final int O_GETCAPTIONS = 12;
+    public static final int O_GETTAGS = 13;
+    public static final int O_SETTAGS = 14;
+    public static final int O_LOADDATA = 15;
+    //public static final int O_SEARCH_N = 16;
+    //public static final int O_SEARCH_N = 17;
+    //public static final int O_SEARCH_N = 18;
 }

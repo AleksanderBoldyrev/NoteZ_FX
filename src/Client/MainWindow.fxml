@@ -33,18 +33,18 @@
             <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                     <children>
-                        <ListView layoutX="-12.0" layoutY="-3.0" prefHeight="344.0" prefWidth="216.0" />
-                        <Button layoutX="6.0" layoutY="341.0" mnemonicParsing="false" onMouseClicked="#CloseNoteButtonClicked" text="Close note" />
-                        <Button layoutX="88.0" layoutY="341.0" mnemonicParsing="false" text="33" />
+                        <ListView layoutX="-12.0" layoutY="-3.0" prefHeight="344.0" prefWidth="216.0" fx:id="listView"/>
+                        <Button layoutX="6.0" layoutY="341.0" mnemonicParsing="false" onMouseClicked="#CloseNoteButtonClicked" text="Close note" fx:id="closeButton"/>
+                        <Button layoutX="88.0" layoutY="341.0" mnemonicParsing="false" text="Open" fx:id="openButton" onMouseClicked="#OpenButtonClicked"/>
                     </children>
                 </AnchorPane>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                     <children>
-                        <TextArea layoutX="-3.0" layoutY="29.0" prefHeight="286.0" prefWidth="423.0" />
-                        <TextField layoutX="49.0" layoutY="2.0" prefHeight="25.0" prefWidth="320.0" />
-                        <TextField layoutX="13.0" layoutY="314.0" prefHeight="25.0" prefWidth="364.0" />
-                        <Button layoutX="92.0" layoutY="339.0" mnemonicParsing="false" text="Save" />
-                        <Button layoutX="258.0" layoutY="339.0" mnemonicParsing="false" text="Undo" />
+                        <TextArea layoutX="-3.0" layoutY="29.0" prefHeight="286.0" prefWidth="423.0" fx:id="noteData"/>
+                        <TextField layoutX="49.0" layoutY="2.0" prefHeight="25.0" prefWidth="320.0" fx:id="noteCaption"/>
+                        <TextField layoutX="13.0" layoutY="314.0" prefHeight="25.0" prefWidth="364.0" fx:id="tagList"/>
+                        <Button layoutX="92.0" layoutY="339.0" mnemonicParsing="false" text="Save" fx:id="saveButton" onMouseClicked="#SaveButtonClicked"/>
+                        <Button layoutX="258.0" layoutY="339.0" mnemonicParsing="false" text="Undo" fx:id="undoButton" onMouseClicked="#UndoButtonClicked"/>
                     </children>
                 </AnchorPane>
             </items>

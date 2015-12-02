@@ -139,7 +139,7 @@ public class Server extends Thread{
         }
         else
             res.add(CommonData.SERV_NO + "");
-        res.add(id+"");
+        //res.add(id+"");
         return _parser.Build(res, CommonData.O_RESPOND);
     }
 

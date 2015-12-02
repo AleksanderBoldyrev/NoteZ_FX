@@ -9,12 +9,13 @@ import java.util.concurrent.ExecutorService;
 
 import Main.*;
 import javafx.application.Application;
+import javafx.collections.FXCollections;
+import javafx.collections.ObservableList;
 import javafx.event.Event;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
-import javafx.scene.control.PasswordField;
-import javafx.scene.control.TextField;
+import javafx.scene.control.*;
 import javafx.stage.Stage;
 
 import static java.lang.Thread.sleep;
@@ -31,12 +32,10 @@ public class Client extends Application {
     public static Scene _mainScene;
     public static Parent _lNode;
     public static Parent _mNode;
-    public static int _userId;
 
     private static Socket _sock;
     private static BufferedReader _in;
     private static PrintWriter _out;
-
 
     private boolean termFlag;
 
@@ -45,15 +44,30 @@ public class Client extends Application {
     public TextField serverName;
     public TextField userName;
     public PasswordField password;
-
+    public TextField tagList;
+    public TextField noteCaption;
+    public TextArea noteData;
+    public ListView listView;
+    public Button saveButton;
+    public Button undoButton;
+    public Button closeButton;
+    public Button openButton;
     /* =========== */
+
+    public static Note curNote;
+    public static ArrayList<Integer> noteIds;
+    public static ArrayList<String> noteCaptions;
+    public static ArrayList<Tag> tagsList;
+    public String login;
+    public String pass;
+
 
     public void startProcess() {
         /*Thread t = new Thread(_listener);
         t.setDaemon(true);
         t.start();*/
 
-        try {
+       try {
             _sock = new Socket(CommonData.HOST, CommonData.PORT);
             _in = new BufferedReader(new InputStreamReader(_sock.getInputStream()));
             _out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(_sock.getOutputStream())), true);
@@ -71,7 +85,6 @@ public class Client extends Application {
     public void start(Stage primaryStage) throws IOException {
 
         isAuth = false;
-        _userId = 0;
         _mainStage = new Stage();
 
         _lNode = FXMLLoader.load(getClass().getResource("LoginWindow.fxml"));
@@ -94,13 +107,13 @@ public class Client extends Application {
         if (!str.equals(""))
         {
             ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
-            if (buff.size() > 2)
+            if (buff.size() > 1)
                 if (buff.get(0) == CommonData.O_RESPOND)
                 {
                     if (buff.get(1) == CommonData.SERV_YES)
                     {
-                        _userId = buff.get(2);
                         isAuth = true;
+                        LoadBasicDataFromServer();
                         _mainStage.setTitle(CommonData.MAIN_W_CAPTION);
                         _mainScene = new Scene(_mNode, 600, 400);
                         _mainStage.setScene(_mainScene);
@@ -129,6 +142,25 @@ public class Client extends Application {
                 }
         }
     }
+
+    public void LoadBasicDataFromServer(){
+        String st = _parser.Build("", CommonData.O_LOADDATA);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.equals(""))
+        {
+            ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
+            if (buff.size() > 1)
+                if (buff.get(0) == CommonData.O_RESPOND)
+                {
+                    if (buff.get(1) == CommonData.SERV_YES)
+                    {
+                        isAuth = false;
+                    }
+                }
+        }
+    }
+
 
     public void CreateUser(String _log, String _pass) {
         ArrayList<String> s = new ArrayList<String>();
@@ -295,8 +327,85 @@ public class Client extends Application {
         }
     }
 
-    public void GetTagList() {
+    public void GetTags() {
+        ArrayList<String> s = new ArrayList<String>();
+        String st = _parser.Build(s, CommonData.O_GETTAGS);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.isEmpty())
+        {
+            ArrayList<String> buff = _parser.ParseListOfString(str);
+            if ((buff.size() > 2) && (buff.size() % 2 == 0))
+                if (Integer.parseInt(buff.get(0)) == CommonData.O_RESPOND)
+                {
+                    if (Integer.parseInt(buff.get(1)) == CommonData.SERV_YES)
+                    {
+                        ArrayList<String> foo = buff;
+                        foo.remove(0);
+                        foo.remove(0);
+                        int tagId=0;
+                        String tagData = new String();
+                        for (int i =0; i<(foo.size()/2); i++) {
+                            tagId = Integer.parseInt(foo.get(i*2));
+                            tagData = foo.get(i*2+1);
+                        }
 
+                        tagsList.add(new Tag(tagId, tagData));
+                    }
+                }
+        }
+    }
+
+    public void SetTags() {
+        ArrayList<String> s = new ArrayList<String>();
+        String st = _parser.Build(s, CommonData.O_SETTAGS);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.isEmpty())
+        {
+            ArrayList<String> buff = _parser.ParseListOfString(str);
+            if (buff.size() > 2)
+                if (Integer.parseInt(buff.get(0)) == CommonData.O_RESPOND)
+                {
+                    if (Integer.parseInt(buff.get(1)) == CommonData.SERV_YES)
+                    {
+
+                    }
+                }
+        }
+    }
+
+    public void GetCaptions() {
+        ArrayList<String> s = new ArrayList<String>();
+        String st = _parser.Build(s, CommonData.O_GETCAPTIONS);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.isEmpty())
+        {
+            ArrayList<String> buff = _parser.ParseListOfString(str);
+            if (buff.size() > 2)
+                if (Integer.parseInt(buff.get(0)) == CommonData.O_RESPOND)
+                {
+                    if (Integer.parseInt(buff.get(1)) == CommonData.SERV_YES)
+                    {
+                        ArrayList<String> caps = buff;
+                        caps.remove(0);
+                        caps.remove(0);
+                        FillCaptions(caps);
+                    }
+                }
+        }
+    }
+
+    private void FillCaptions(final ArrayList<String> arr) {
+        if (arr.size()>0) {
+            ObservableList<String> lw = FXCollections.observableArrayList();
+            for (int i = 0; i < arr.size(); i++){
+                //listView.setItems();
+                lw.add(arr.get(i));
+            }
+            listView.setItems(lw);
+        }
     }
 
     public void GetNoteByTag() { //
@@ -439,5 +548,14 @@ public class Client extends Application {
         }
         System.out.println("Client received: " + str);
         return str;
+    }
+
+    public void UndoButtonClicked(Event event) {
+    }
+
+    public void SaveButtonClicked(Event event) {
+    }
+
+    public void OpenButtonClicked(Event event) {
     }
 }
