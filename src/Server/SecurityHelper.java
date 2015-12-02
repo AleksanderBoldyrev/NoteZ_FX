@@ -1,6 +1,7 @@
 package Server;
 
 import Main.Note;
+import Main.Tag;
 
 import java.util.ArrayList;
 
@@ -135,12 +136,21 @@ public class SecurityHelper {
 
     }
 
-    public void GetNoteListByTag() {
+    /*public void GetNoteListByTag() {
 
+    }*/
+
+    public ArrayList<Tag> GetTagList(final int userId) {
+        ArrayList<Tag> art = new ArrayList<Tag>();
+        if (_activeUsers.contains(userId)) {
+            return _dataBase.GetTagList();
+        }
+        return art;
     }
-
-    public void GetTagList() {
-
+    public void SetTagList(int userId, ArrayList<Tag> art) {
+        if (_activeUsers.contains(userId)) {
+            _dataBase.SetTagList(userId, art);
+        }
     }
 
     public void GetTitleNoteList() {

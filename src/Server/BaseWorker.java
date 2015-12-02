@@ -493,6 +493,18 @@ public class BaseWorker {
     }
 
     /**
+     * Getting the tag by it's title;
+     * @return - tag list.
+     */
+    public ArrayList<Tag> GetTagList() {
+        return _tags;
+    }
+
+    public void SetTagList(ArrayList<Tag> art) {
+        _tags = art;
+    }
+
+    /**
      * Adds tag in the common base;
      * @param t - tag's title.
      */

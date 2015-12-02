@@ -2,6 +2,7 @@ package Server;
 
 import Main.CommonData;
 import Main.RequestsParser;
+import Main.Tag;
 
 import java.io.*;
 import java.net.InterfaceAddress;
@@ -92,7 +93,30 @@ public class Server extends Thread{
                             case CommonData.O_SEARCH_N:
                                 resp = SearchNote(buff);
                                 break;
-
+                            case CommonData.O_GETCAPTIONS:
+                                resp = GetCaptions(buff);
+                                break;
+                            case CommonData.O_GETTAGS:
+                                resp = GetTags(buff);
+                                break;
+                            case CommonData.O_SETTAGS:
+                                resp = SetTags(buff);
+                                break;
+                            case CommonData.O_GETNOTEIDS:
+                                resp = GetNoteIds(buff);
+                                break;
+                            case CommonData.O_GETNOTEPRIM:
+                                resp = GetNotePrimitive(buff);
+                                break;
+                            case CommonData.O_GETVERSDATE:
+                                resp = GetVersionsDate(buff);
+                                break;
+                            case CommonData.O_SETNOTEIDS:
+                                resp = SetNotesIds(buff);
+                                break;
+                            case CommonData.O_SETNOTEPRIM:
+                                resp = SetNotePrimirtive(buff);
+                                break;
                         }
 
                     } catch (NumberFormatException e)
@@ -125,6 +149,61 @@ public class Server extends Thread{
             }
         }
     }
+
+    public String GetNotePrimitive(ArrayList<String> buff) {
+        String res = "";
+        return res;
+    }
+
+    public String GetVersionsDate(ArrayList<String> buff) {
+        String res = "";
+        return res;
+    }
+
+    public String SetNotesIds(ArrayList<String> buff) {
+        String res = "";
+        return res;
+    }
+
+    public String SetNotePrimirtive(ArrayList<String> buff) {
+        String res = "";
+        return res;
+    }
+
+    public String GetNoteIds(ArrayList<String> buff) {
+        String res = "";
+        return res;
+    }
+
+    public String GetCaptions(ArrayList<String> buff) {
+        ArrayList<String> res = new ArrayList<String>();
+        res = ServerDaemon.sHelper.GetNotesTitlesById(_userId);
+        res.add(CommonData.SERV_YES + "");
+        return _parser.Build(res, CommonData.O_RESPOND);
+    }
+
+    public String GetTags(ArrayList<String> buff){
+        ArrayList<Tag> res = new ArrayList<Tag>();
+        res = ServerDaemon.sHelper.GetTagList(_userId);
+        StringBuilder stb = new StringBuilder();
+        stb.append(CommonData.SERV_YES + "");
+        for (int i = 0; i < res.size(); i++) {
+            stb.append(res.get(i).GetId());
+            stb.append(res.get(i).GetStrData());
+        }
+        return _parser.Build(stb.toString(), CommonData.O_RESPOND);
+    }
+
+    public String SetTags(ArrayList<String> buff){
+        ArrayList<Tag> res = new ArrayList<Tag>();
+        res = ServerDaemon.sHelper.SetTagList(_userId);
+        StringBuilder stb = new StringBuilder();
+        stb.append(CommonData.SERV_YES + "");
+        for (int i = 0; i < res.size(); i++) {
+            stb.append(res.get(i).GetId());
+            stb.append(res.get(i).GetStrData());
+        }
+        return _parser.Build(stb.toString(), CommonData.O_RESPOND);    }
 
     public String Login(ArrayList<String> buff ) {
         ArrayList<String> res = new ArrayList<String>();

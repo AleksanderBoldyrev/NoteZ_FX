@@ -2,6 +2,7 @@ package Client;
 
 import java.io.*;
 import java.net.Socket;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Objects;
 import java.util.concurrent.Executor;
@@ -54,12 +55,14 @@ public class Client extends Application {
     public Button openButton;
     /* =========== */
 
-    public static Note curNote;
     public static ArrayList<Integer> noteIds;
     public static ArrayList<String> noteCaptions;
     public static ArrayList<Tag> tagsList;
     public String login;
     public String pass;
+    public ArrayList<String> versDate;
+    public NotePrimitive curVers;
+    public String undoBuff;
 
 
     public void startProcess() {
@@ -112,6 +115,8 @@ public class Client extends Application {
                 {
                     if (buff.get(1) == CommonData.SERV_YES)
                     {
+                        login = _log;
+                        pass = _pass;
                         isAuth = true;
                         LoadBasicDataFromServer();
                         _mainStage.setTitle(CommonData.MAIN_W_CAPTION);
@@ -144,21 +149,8 @@ public class Client extends Application {
     }
 
     public void LoadBasicDataFromServer(){
-        String st = _parser.Build("", CommonData.O_LOADDATA);
-        SendToServer(st);
-        String str = WaitForServer();
-        if (!str.equals(""))
-        {
-            ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
-            if (buff.size() > 1)
-                if (buff.get(0) == CommonData.O_RESPOND)
-                {
-                    if (buff.get(1) == CommonData.SERV_YES)
-                    {
-                        isAuth = false;
-                    }
-                }
-        }
+        GetCaptions();
+        GetTags();
     }
 
 
@@ -356,9 +348,54 @@ public class Client extends Application {
         }
     }
 
-    public void SetTags() {
+    public void GetNoteIds() {
         ArrayList<String> s = new ArrayList<String>();
-        String st = _parser.Build(s, CommonData.O_SETTAGS);
+        String st = _parser.Build(s, CommonData.O_GETNOTEIDS);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.isEmpty())
+        {
+            ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
+            if (buff.size() > 2)
+                if (buff.get(0) == CommonData.O_RESPOND)
+                {
+                    if (buff.get(1) == CommonData.SERV_YES)
+                    {
+                        buff.remove(0);
+                        buff.remove(0);
+                        for (int i = 2; i < buff.size(); i++) {
+                            noteIds.add(buff.get(i));
+                        }
+                    }
+                }
+        }
+    }
+
+    public void GetNotePrim() {
+        ArrayList<String> s = new ArrayList<String>();
+        String st = _parser.Build(s, CommonData.O_GETNOTEPRIM);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.isEmpty())
+        {
+            ArrayList<String> buff = _parser.ParseListOfString(str);
+            if (buff.size() > 4)
+                if (Integer.parseInt(buff.get(0)) == CommonData.O_RESPOND)
+                {
+                    if (Integer.parseInt(buff.get(1)) == CommonData.SERV_YES)
+                    {
+                        int _id = Integer.parseInt(buff.get(2));
+                        LocalDateTime _cdate = LocalDateTime.parse(buff.get(3));
+                        String _data = buff.get(4);
+                        curVers = new NotePrimitive(_id, _cdate, _data);
+                    }
+                }
+        }
+    }
+
+    public void GetVersDate() {
+        ArrayList<String> s = new ArrayList<String>();
+        String st = _parser.Build(s, CommonData.O_GETVERSDATE);
         SendToServer(st);
         String str = WaitForServer();
         if (!str.isEmpty())
@@ -369,10 +406,82 @@ public class Client extends Application {
                 {
                     if (Integer.parseInt(buff.get(1)) == CommonData.SERV_YES)
                     {
-
+                        versDate.clear();
+                        for (int i = 0; i<buff.size(); i++)
+                            versDate.add(buff.get(i));
+                        FillCaptions(versDate);
                     }
                 }
         }
+    }
+
+    public boolean SetNoteIds() {
+        ArrayList<Integer> s = new ArrayList<Integer>();
+        for (int i = 0; i < noteIds.size(); i++) {
+            s.add(noteIds.get(i));
+        }
+        String st = _parser.Build(CommonData.O_SETNOTEIDS, s);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.isEmpty())
+        {
+            ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
+            if (buff.size() > 2)
+                if (buff.get(0) == CommonData.O_RESPOND)
+                {
+                    if (buff.get(1) == CommonData.SERV_YES)
+                    {
+                        return true;
+                    }
+                }
+        }
+        return false;
+    }
+
+    public boolean SetNotePrim() {
+        ArrayList<String> s = new ArrayList<String>();
+        s.add(curVers.GetID()+"");
+        s.add(curVers.GetCDate().toString()+"");
+        s.add(curVers.GetData());
+        String st = _parser.Build(s, CommonData.O_SETNOTEPRIM);
+        SendToServer(st);
+        String str = WaitForServer();
+        if (!str.isEmpty())
+        {
+            ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
+            if (buff.size() > 2)
+                if (buff.get(0) == CommonData.O_RESPOND)
+                {
+                    if (buff.get(1) == CommonData.SERV_YES)
+                    {
+                        return true;
+                    }
+                }
+        }
+        return false;
+    }
+
+    public boolean SetTags() {
+        ArrayList<String> s = new ArrayList<String>();
+        if (tagsList.size()>0) {
+            for (int i = 0; i < tagsList.size(); i++) {
+                s.add(tagsList.get(i).GetId() + "");
+                s.add(tagsList.get(i).GetStrData());
+            }
+            String st = _parser.Build(s, CommonData.O_SETTAGS);
+            SendToServer(st);
+            String str = WaitForServer();
+            if (!str.isEmpty()) {
+                ArrayList<Integer> buff = _parser.ParseListOfInteger(str);
+                if (buff.size() > 2)
+                    if (buff.get(0) == CommonData.O_RESPOND) {
+                        if (buff.get(1) == CommonData.SERV_YES) {
+                            return true;
+                        }
+                    }
+            }
+        }
+        return false;
     }
 
     public void GetCaptions() {
@@ -408,7 +517,7 @@ public class Client extends Application {
         }
     }
 
-    public void GetNoteByTag() { //
+    public void FilterNoteByTag() { //
 
     }
 
