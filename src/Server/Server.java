@@ -196,14 +196,22 @@ public class Server extends Thread{
 
     public String SetTags(ArrayList<String> buff){
         ArrayList<Tag> res = new ArrayList<Tag>();
-        res = ServerDaemon.sHelper.SetTagList(_userId);
+        boolean b = true;
+        int id = 0;
+        String str = "";
+        for (int i = 0; i < buff.size(); i++) {
+            if (b) id = Integer.parseInt(buff.get(i));
+            else {
+                str = buff.get(i);
+                res.add(new Tag(id, str));
+            }
+            b = !b;
+        }
+        b = ServerDaemon.sHelper.SetTagList(_userId, res);
         StringBuilder stb = new StringBuilder();
         stb.append(CommonData.SERV_YES + "");
-        for (int i = 0; i < res.size(); i++) {
-            stb.append(res.get(i).GetId());
-            stb.append(res.get(i).GetStrData());
-        }
-        return _parser.Build(stb.toString(), CommonData.O_RESPOND);    }
+        return _parser.Build(stb.toString(), CommonData.O_RESPOND);
+    }
 
     public String Login(ArrayList<String> buff ) {
         ArrayList<String> res = new ArrayList<String>();

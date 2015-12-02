@@ -147,10 +147,11 @@ public class SecurityHelper {
         }
         return art;
     }
-    public void SetTagList(int userId, ArrayList<Tag> art) {
+    public boolean SetTagList(int userId, ArrayList<Tag> art) {
         if (_activeUsers.contains(userId)) {
-            _dataBase.SetTagList(userId, art);
+            _dataBase.SetTagList(art);
         }
+        return true;
     }
 
     public void GetTitleNoteList() {
