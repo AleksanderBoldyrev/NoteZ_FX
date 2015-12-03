@@ -111,8 +111,8 @@ public class Server extends Thread{
                             case CommonData.O_GETVERSDATE:
                                 resp = GetVersionsDate(buff);
                                 break;
-                            case CommonData.O_UNDO_OP:
-                                resp = UndoOp(buff);
+                            case CommonData.O_SETNOTEIDS:
+                                //resp = SetNotePrimitive(buff);
                                 break;
                             case CommonData.O_SETNOTEPRIM:
                                 resp = SetNotePrimitive(buff);
@@ -148,11 +148,6 @@ public class Server extends Thread{
                 e.printStackTrace();
             }
         }
-    }
-
-    private String UndoOp(ArrayList<String> buff) {
-        String res = "";
-        return res;
     }
 
     public String GetNotePrimitive(ArrayList<String> buff) {

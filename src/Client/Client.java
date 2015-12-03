@@ -591,7 +591,7 @@ public class Client extends Application {
     }
 
     public void UndoButtonClicked(Event event) {
-
+        noteData.setText(undoBuff);
     }
 
     public void SaveButtonClicked(Event event) {
