@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
+<?import javafx.scene.web.*?>
 <?import javafx.scene.control.*?>
 <?import java.lang.*?>
 <?import javafx.scene.layout.*?>
@@ -33,18 +34,20 @@
             <items>
                 <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
                     <children>
-                        <ListView fx:id="listView" layoutX="-12.0" layoutY="-3.0" prefHeight="344.0" prefWidth="216.0" />
+                        <ListView fx:id="listView" layoutX="-1.0" layoutY="1.0" prefHeight="340.0" prefWidth="204.0" />
                         <Button fx:id="closeButton" layoutX="14.0" layoutY="341.0" mnemonicParsing="false" onMouseClicked="#CloseNoteButtonClicked" text="Close/open note" />
                         <Button fx:id="openButton" layoutX="132.0" layoutY="341.0" mnemonicParsing="false" onMouseClicked="#OpenButtonClicked" text="Open" />
                     </children>
                 </AnchorPane>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="160.0" prefWidth="100.0">
+                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="373.0" prefWidth="474.0">
                     <children>
-                        <TextArea fx:id="noteData" layoutX="-3.0" layoutY="29.0" prefHeight="286.0" prefWidth="423.0" />
-                        <TextField fx:id="noteCaption" layoutX="49.0" layoutY="2.0" prefHeight="25.0" prefWidth="320.0" />
-                        <TextField fx:id="tagList" layoutX="13.0" layoutY="314.0" prefHeight="25.0" prefWidth="364.0" />
-                        <Button fx:id="saveButton" layoutX="92.0" layoutY="339.0" mnemonicParsing="false" onMouseClicked="#SaveButtonClicked" text="Save" />
-                        <Button fx:id="undoButton" layoutX="258.0" layoutY="339.0" mnemonicParsing="false" onMouseClicked="#UndoButtonClicked" text="Undo" />
+                        <TextArea fx:id="noteData" layoutY="29.0" prefHeight="286.0" prefWidth="388.0" />
+                        <TextField fx:id="noteCaption" layoutX="83.0" layoutY="2.0" prefHeight="25.0" prefWidth="305.0" />
+                        <TextField fx:id="tagList" layoutX="84.0" layoutY="314.0" prefHeight="25.0" prefWidth="305.0" />
+                        <Button fx:id="saveButton" layoutX="153.0" layoutY="339.0" mnemonicParsing="false" onMouseClicked="#SaveButtonClicked" text="Save" />
+                        <Button fx:id="undoButton" layoutX="277.0" layoutY="339.0" mnemonicParsing="false" onMouseClicked="#UndoButtonClicked" text="Undo" />
+                  <Label layoutX="28.0" layoutY="318.0" text="Tags" />
+                  <Label layoutX="14.0" layoutY="6.0" text="Note title" />
                     </children>
                 </AnchorPane>
             </items>

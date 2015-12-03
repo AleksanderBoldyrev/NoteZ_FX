@@ -111,9 +111,9 @@ public class Server extends Thread{
                             case CommonData.O_GETVERSDATE:
                                 resp = GetVersionsDate(buff);
                                 break;
-                            /*case CommonData.O_SETNOTEIDS:
-                                resp = SetNotesIds(buff);
-                                break;*/
+                            case CommonData.O_UNDO_OP:
+                                resp = UndoOp(buff);
+                                break;
                             case CommonData.O_SETNOTEPRIM:
                                 resp = SetNotePrimitive(buff);
                                 break;
@@ -148,6 +148,11 @@ public class Server extends Thread{
                 e.printStackTrace();
             }
         }
+    }
+
+    private String UndoOp(ArrayList<String> buff) {
+        String res = "";
+        return res;
     }
 
     public String GetNotePrimitive(ArrayList<String> buff) {
@@ -322,8 +327,17 @@ public class Server extends Thread{
     }
 
     public String SaveNote(ArrayList<String> buff ) {
-        String res = new String();
-        return res;
+        StringBuilder res = new StringBuilder();
+        boolean suc = false;
+        //ArrayList<Integer> ar = new ArrayList<Integer>();
+        if (buff.size()>3) {
+            suc = ServerDaemon.sHelper.SaveNote(Integer.parseInt(buff.get(1)));
+        }
+        if (suc)
+            res.append(CommonData.SERV_YES);
+        else
+            res.append(CommonData.SERV_NO);
+        return _parser.Build(res.toString(), CommonData.O_RESPOND);
     }
 
     public String SearchNote(ArrayList<String> buff ) {

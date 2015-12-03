@@ -305,7 +305,7 @@ public class Client extends Application {
                 {
                     if (buff.get(1) == CommonData.SERV_YES)
                     {
-                        isAuth = true;
+
                     }
                 }
         }
@@ -574,6 +574,53 @@ public class Client extends Application {
         CreateUser(userName.getText(), password.getText());
     }
 
+    private void SendToServer(String str) {
+        System.out.println("Client send to server:" + str);
+        _out.println(str);
+    }
+
+    private String ReceiveData() {
+        String str = "";
+        try {
+            str = _in.readLine();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        System.out.println("Client received: " + str);
+        return str;
+    }
+
+    public void UndoButtonClicked(Event event) {
+
+    }
+
+    public void SaveButtonClicked(Event event) {
+        SaveNote(curVers.GetID());
+    }
+
+    public void OpenButtonClicked(Event event) {
+        int pos = listView.getSelectionModel().getSelectedIndex();
+        String text = listView.getSelectionModel().getSelectedItem().toString();
+        if (_stage == 0) {
+            OpenNote(pos, text);
+        }
+        else if (_stage == 1){
+            OpenNoteVersion(pos);
+        }
+    }
+
+    private void OpenNote(final int pos, final String text){
+        GetVersDate(pos);
+        currentCaption = text;
+    }
+
+    private void OpenNoteVersion(final int pos) {
+        GetNotePrim(pos);
+        noteCaption.setText(currentCaption);
+        noteData.setText(curVers.GetData());
+        tagList.setText(curVers.GetCDate().toString());
+    }
+}
   /* public void StopListener() {
         //synchronized (termFlag) {
         termFlag = true;
@@ -657,48 +704,3 @@ public class Client extends Application {
         _running = false;
     }
 */
-    private  void SendToServer(String str) {
-        System.out.println("Client send to server:" + str);
-        _out.println(str);
-    }
-
-    private String ReceiveData() {
-        String str = "";
-        try {
-            str = _in.readLine();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        System.out.println("Client received: " + str);
-        return str;
-    }
-
-    public void UndoButtonClicked(Event event) {
-    }
-
-    public void SaveButtonClicked(Event event) {
-    }
-
-    public void OpenButtonClicked(Event event) {
-        int pos = listView.getSelectionModel().getSelectedIndex();
-        String text = listView.getSelectionModel().getSelectedItem().toString();
-        if (_stage == 0) {
-            OpenNote(pos, text);
-        }
-        else if (_stage == 1){
-            OpenNoteVersion(pos);
-        }
-    }
-
-    private void OpenNote(final int pos, final String text){
-        GetVersDate(pos);
-        currentCaption = text;
-    }
-
-    private void OpenNoteVersion(final int pos) {
-        GetNotePrim(pos);
-        noteCaption.setText(currentCaption);
-        noteData.setText(curVers.GetData());
-        tagList.setText(curVers.GetCDate().toString());
-    }
-}

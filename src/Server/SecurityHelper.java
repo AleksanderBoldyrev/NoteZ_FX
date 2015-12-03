@@ -134,6 +134,14 @@ public class SecurityHelper {
         return false;
     }
 
+    public synchronized boolean SaveNote(int userId) {//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+        if (_activeUsers.contains(userId)) {
+            _dataBase.SaveData();
+            return true;
+        }
+        return false;
+    }
+
     public synchronized void AddTagToNote(String t) {
         _dataBase.AddTag(t);
     }

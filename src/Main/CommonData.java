@@ -37,7 +37,8 @@ public final class CommonData {
     public static final int O_GETNOTEIDS = 15;
     public static final int O_GETNOTEPRIM = 16;
     public static final int O_GETVERSDATE = 17;
-    public static final int O_SETNOTEIDS = 19;
+    public static final int O_UNDO_OP = 19;
     public static final int O_SETNOTEPRIM = 20;
+    public static final int O_SETNOTEIDS = 21;
 
 }
