@@ -31,12 +31,14 @@ public class SecurityHelper {
         return -1;
     }
 
-    public synchronized void Logout(int userId) {
+    public synchronized boolean Logout(int userId) {
         if (_activeUsers.contains(userId))
             for (int i = 0; i < _activeUsers.size(); i++) {
                 if (_activeUsers.get(i) == userId)
                     _activeUsers.remove(i);
+                    return true;
             }
+        return false;
     }
 
     public synchronized  int GetNotesCount(int userId) {
@@ -59,7 +61,7 @@ public class SecurityHelper {
         return res;
     }
 
-    public synchronized String GetNoteVersioDatanById(int userId, int noteId, int verId) {
+    public synchronized String GetNoteVersionDateById(int userId, int noteId, int verId) {
         String res = "";
         if (_activeUsers.contains(userId)) {
             return _dataBase.GetNoteVerDateById(userId, noteId, verId);
@@ -82,10 +84,18 @@ public class SecurityHelper {
 
     }
 
-    public synchronized ArrayList<Integer> GetNoteVersionsListById(int userId, int noteId) {
-        ArrayList<Integer> res = new ArrayList<Integer>();
+    public synchronized ArrayList<String> GetNoteVersionsListById(int userId, int noteId) {
+        ArrayList<String> res = new ArrayList<String>();
 
-        /***********************/
+        if (_activeUsers.contains(userId)){
+            ArrayList<Integer> arr = _dataBase.GetNotesByUserId(userId);
+            boolean flag = false;
+            for (int i = 0; i<arr.size(); i++) {
+                if (arr.get(i)==noteId){
+                    res =  _dataBase.GetNoteVersionsDatesById(noteId);
+                }
+            }
+        }
 
         return res;
     }

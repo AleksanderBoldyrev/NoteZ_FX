@@ -25,7 +25,9 @@ public class Note {
         _id = id;
         _n_cdate = LocalDateTime.now();
         _n_mdate = LocalDateTime.now();
+
     }*/
+
 
     public Note (int id, ArrayList<Integer> tags, ArrayList<NotePrimitive> notes, String title) {
         _note = new ArrayList<NotePrimitive>();
@@ -60,6 +62,12 @@ public class Note {
     public NotePrimitive getNote() {
         if (_id > _note.size()) _id = 0;
         return _note.get(0);
+    }
+
+    public String GetNoteVerDateByPos(int pos) {
+        if (_note.size()>0 && _note.size() < pos)
+            return _note.get(pos).GetCDate().toString();
+        return "";
     }
 
     /*NotePrimitive getNoteByPos(int id) {

@@ -111,11 +111,11 @@ public class Server extends Thread{
                             case CommonData.O_GETVERSDATE:
                                 resp = GetVersionsDate(buff);
                                 break;
-                            case CommonData.O_SETNOTEIDS:
+                            /*case CommonData.O_SETNOTEIDS:
                                 resp = SetNotesIds(buff);
-                                break;
+                                break;*/
                             case CommonData.O_SETNOTEPRIM:
-                                resp = SetNotePrimirtive(buff);
+                                resp = SetNotePrimitive(buff);
                                 break;
                         }
 
@@ -156,23 +156,41 @@ public class Server extends Thread{
     }
 
     public String GetVersionsDate(ArrayList<String> buff) {
-        String res = "";
-        return res;
+        ArrayList<String> res = new ArrayList<String>();
+        if (buff.size()>1) {
+            res = ServerDaemon.sHelper.GetNoteVersionsListById(_userId, Integer.parseInt(buff.get(1)));
+            res.add(CommonData.SERV_YES + "");
+        }
+        return _parser.Build(res, CommonData.O_RESPOND);
     }
 
-    public String SetNotesIds(ArrayList<String> buff) {
-        String res = "";
-        return res;
-    }
+    /*public String SetNotesIds(ArrayList<String> buff) {
+        ArrayList<Integer> res = new ArrayList<Integer>();
+        if (buff.size()>1)
+        for (int i = 0; i < buff.size(); i++) {
+            if (b) id = Integer.parseInt(buff.get(i));
+            else {
+                str = buff.get(i);
+                res.add(new Tag(id, str));
+            }
+            b = !b;
+        }
+        b = ServerDaemon.sHelper.SetTagList(_userId, res);
+        StringBuilder stb = new StringBuilder();
+        stb.append(CommonData.SERV_YES + "");
+        return _parser.Build(stb.toString(), CommonData.O_RESPOND);
+    }*/
 
-    public String SetNotePrimirtive(ArrayList<String> buff) {
-        String res = "";
+    public String SetNotePrimitive(ArrayList<String> buff) {
+        String res = new String();
         return res;
     }
 
     public String GetNoteIds(ArrayList<String> buff) {
-        String res = "";
-        return res;
+        ArrayList<Integer> res = new ArrayList<Integer>();
+        res = ServerDaemon.sHelper.GetNotesListByUserId(_userId);
+        res.add(CommonData.SERV_YES);
+        return _parser.Build(CommonData.O_RESPOND, res);
     }
 
     public String GetCaptions(ArrayList<String> buff) {
@@ -231,8 +249,17 @@ public class Server extends Thread{
     }
 
     public String Logout(ArrayList<String> buff ) {
-        String res = "";
-        return res;
+        StringBuilder res = new StringBuilder();
+        boolean suc = false;
+        ArrayList<Integer> ar = new ArrayList<Integer>();
+        if (buff.size()>3) {
+            suc = ServerDaemon.sHelper.Logout(_userId);
+        }
+        if (suc)
+            res.append(CommonData.SERV_YES);
+        else
+            res.append(CommonData.SERV_NO);
+        return _parser.Build(res.toString(), CommonData.O_RESPOND);
     }
 
     public String CreateUser(ArrayList<String> buff ) {

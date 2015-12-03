@@ -722,6 +722,20 @@ public class BaseWorker {
         return res;
     }
 
+    public ArrayList<String> GetNoteVersionsDatesById(final int noteId){
+        Note t;
+        ArrayList<String> res = new ArrayList<String>();
+        for (int i = 0; i < _notes.size(); i++) {
+            if (_notes.get(i).GetId()==noteId){
+                t = _notes.get(i);
+                for (int j = 0; j < t.GetVersionsCount(); j++) {
+                    res.add(t.GetNoteVerDateByPos(j));
+                }
+            }
+        }
+        return res;
+    }
+
     /**
      * Getting the version of the given note by it's ID.
      * @param userId - ID of the logged user;

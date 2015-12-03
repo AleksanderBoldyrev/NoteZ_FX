@@ -38,7 +38,8 @@ public class Client extends Application {
     private static BufferedReader _in;
     private static PrintWriter _out;
 
-    private boolean termFlag;
+    private static boolean termFlag;
+    private static int _stage;                           //0 - Notes captions view, 1 - List of versions view
 
     /* FX Elements */
 
@@ -55,14 +56,16 @@ public class Client extends Application {
     public Button openButton;
     /* =========== */
 
-    public static ArrayList<Integer> noteIds;
-    public static ArrayList<String> noteCaptions;
-    public static ArrayList<Tag> tagsList;
-    public String login;
-    public String pass;
-    public ArrayList<String> versDate;
-    public NotePrimitive curVers;
-    public String undoBuff;
+    public static ArrayList<Integer> noteIds;       //All user's notes
+    public static ArrayList<String> noteCaptions;   //All user's notes captions
+    public static ArrayList<Tag> tagsList;          //All tags list
+    public static String login;
+    public static String pass;
+    public static ArrayList<String> versDate;              //List of note's versions
+    public static NotePrimitive curVers;                   //Store current edition version of Note
+    public static String undoBuff;                         //Buffer which stores last save version of note's text
+    public static String currentCaption;                   //Caption of current note
+    public static ArrayList<Integer> curNoteTags;          //current note tags
 
 
     public void startProcess() {
@@ -118,6 +121,7 @@ public class Client extends Application {
                         login = _log;
                         pass = _pass;
                         isAuth = true;
+                        _stage = 0;
                         LoadBasicDataFromServer();
                         _mainStage.setTitle(CommonData.MAIN_W_CAPTION);
                         _mainScene = new Scene(_mNode, 600, 400);
@@ -143,6 +147,10 @@ public class Client extends Application {
                     if (buff.get(1) == CommonData.SERV_YES)
                     {
                         isAuth = false;
+                        _mainStage.setTitle(CommonData.LOG_W_CAPTION);
+                        _mainScene = new Scene(_mNode, 600, 400);
+                        _mainStage.setScene(_mainScene);
+                        _mainStage.show();
                     }
                 }
         }
@@ -185,7 +193,11 @@ public class Client extends Application {
                 {
                     if (buff.get(1) == CommonData.SERV_YES)
                     {
-                        isAuth = true;
+                        isAuth = false;
+                        _mainStage.setTitle(CommonData.LOG_W_CAPTION);
+                        _mainScene = new Scene(_mNode, 600, 400);
+                        _mainStage.setScene(_mainScene);
+                        _mainStage.show();
                     }
                 }
         }
@@ -371,8 +383,9 @@ public class Client extends Application {
         }
     }
 
-    public void GetNotePrim() {
+    public void GetNotePrim(int notePrimId) {
         ArrayList<String> s = new ArrayList<String>();
+        s.add(notePrimId+"");
         String st = _parser.Build(s, CommonData.O_GETNOTEPRIM);
         SendToServer(st);
         String str = WaitForServer();
@@ -393,8 +406,9 @@ public class Client extends Application {
         }
     }
 
-    public void GetVersDate() {
+    public void GetVersDate(final int noteId) {
         ArrayList<String> s = new ArrayList<String>();
+        s.add(noteId+"");
         String st = _parser.Build(s, CommonData.O_GETVERSDATE);
         SendToServer(st);
         String str = WaitForServer();
@@ -666,5 +680,25 @@ public class Client extends Application {
     }
 
     public void OpenButtonClicked(Event event) {
+        int pos = listView.getSelectionModel().getSelectedIndex();
+        String text = listView.getSelectionModel().getSelectedItem().toString();
+        if (_stage == 0) {
+            OpenNote(pos, text);
+        }
+        else if (_stage == 1){
+            OpenNoteVersion(pos);
+        }
+    }
+
+    private void OpenNote(final int pos, final String text){
+        GetVersDate(pos);
+        currentCaption = text;
+    }
+
+    private void OpenNoteVersion(final int pos) {
+        GetNotePrim(pos);
+        noteCaption.setText(currentCaption);
+        noteData.setText(curVers.GetData());
+        tagList.setText(curVers.GetCDate().toString());
     }
 }
